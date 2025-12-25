@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+
+#app{
+    text-align: center;
+}
+
+/* Estilos para el contenedor principal de la navegación */
+#nav { 
+    height: 100%;
+  background-color: #333; /* Fondo oscuro para la barra */
+  padding:  10px 20px;
+  display: flex; /* Permite colocar los enlaces uno al lado del otro */
+  gap: 20px; /* Espacio entre los enlaces */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Sombra sutil */
+}
+
+/* Estilos para los enlaces de router-link */
+#nav a {
+  font-weight: bold;
+  color: #f2f2f2; /* Color de texto claro */
+  text-decoration: none; /* Quita el subrayado predeterminado */
+  padding: 5px 10px;
+  border-radius: 5px; /* Bordes ligeramente redondeados */
+  transition: background-color 0.3s, color 0.3s; /* Transiciones suaves */
+}
+
+/* Estilos al pasar el ratón (hover) */
+#nav a:hover {
+  background-color: #555; /* Un color de fondo más claro al pasar el ratón */
+  color: #fff;
+}
+
+/* Estilos para el enlace que está activo (la ruta actual) */
+/* Vue Router añade automáticamente la clase .router-link-exact-active para la ruta actual */
+#nav a.router-link-exact-active {
+  color: #42b983; /* Color distintivo para el enlace activo (típico color de Vue) */
+  background-color: #444; /* Un fondo ligeramente diferente para resaltar */
+}
+
+/* --- Nuevos estilos para el Logout --- */
+
+.logout-btn {
+  margin-left: auto; /* Esto empuja el botón de Logout a la derecha de la barra */
+  color: #ff6b6b !important; /* Un color rojizo para indicar "acción de salida" */
+}
+
+.logout-btn:hover {
+  background-color: #ff6b6b !important;
+  color: white !important;
+}
+
+/* Estilos para el contenedor principal de contenido (opcional) */
+.container {
+  padding: 20px;
+}
