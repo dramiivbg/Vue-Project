@@ -65,7 +65,22 @@
             required
             class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer"
           >
-            <option value="user" selected>Usuario</option>
+            <option value="" disabled>Selecciona un rol</option>
+            <option value="administrator">Administrador</option>
+            <option value="user">Usuario</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Usuario Activo</label>
+          <select 
+            v-model="formData.active" 
+            required
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer"
+          >
+            <option value="" disabled>Seleccionar</option>
+            <option value="true">True</option>
+            <option value="false">False</option>
           </select>
         </div>
 
@@ -79,17 +94,8 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ loading ? "Creando cuenta..." : "Registrarse" }}
+            {{ loading ? "Creando cuenta..." : title }}
           </button>
-        </div>
-
-        <div class="text-center mt-6">
-          <p class="text-sm text-gray-600">
-            ¿Ya tienes una cuenta? 
-            <router-link to="/login" class="font-bold text-blue-600 hover:text-blue-500 transition-colors">
-              Inicia sesión aquí
-            </router-link>
-          </p>
         </div>
 
         <transition name="fade">
@@ -104,15 +110,25 @@
   </div>
 </template>
 
-<script setup>
-import { reactive, ref } from "vue";
+<script setup lang="ts">
+import { onMounted, reactive, ref } from "vue";
 import ApiUserService from '@/shared/services/ApiUserService';
+import { useRoute, useRouter } from "vue-router";
+import { User } from "@/shared/models/User";
+
+const route = useRoute();
+
+const router = useRouter();
+
+const id = Number(route.params.id);
+
+const title = ref('');
 
 const loading = ref(false);
 let errorMessage = ref("");
 
 // Agrupamos las propiedades en un solo objeto
-const formData = reactive({
+let formData = ref<User>({
   nombreCompleto: "",
   correo: "",
   clave: "",
@@ -121,20 +137,41 @@ const formData = reactive({
   active: true
 });
 
+const getUser = async (id:number) => {
+    try {
+        formData.value = await ApiUserService.GetById(id);
+        formData.value.clave = "";
+    } catch (err) {
+       alert(err.message);
+       router.push('/products');
+    }
+    
+}
+
+
+onMounted(() => {
+ if(id > 0){
+    title.value = "Actualizar Producto";
+    getUser(id);
+ }else {
+    title.value = "Crear Producto";
+ }
+});
+
 const onRegister = async () => {
   loading.value = true;
   try {
-    await ApiUserService.Create(formData);
-    alert(`Usuario ${formData.nombreCompleto} registrado como ${formData.rol}`);
 
-      // Opcional: Limpiar el formulario
-      Object.assign(formData, {
-        nombreCompleto: "",
-        correo: "",
-        clave: "",
-        confirmarClave: "",
-        rol: "", // Valor inicial vacío
-      });
+    if(id === 0){
+        await ApiUserService.Create(formData.value);
+        alert(`Usuario ${formData.value.nombreCompleto} Creado como ${formData.value.rol}`);
+    }else{
+        await ApiUserService.Edit(formData.value);
+        alert(`Usuario ${formData.value.nombreCompleto} Actualizado como ${formData.value.rol}`);
+    }
+
+    router.push('/users');
+    
   } catch (error) {
     errorMessage = error.message;
   }finally{

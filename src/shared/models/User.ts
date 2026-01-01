@@ -4,5 +4,7 @@ export interface User{
     idUsuario?: number;
     nombreCompleto: string;
     rol: string;
+    active: boolean;
+    confirmarClave?: string;
     token?: string;
 }

@@ -55,29 +55,40 @@
           <div class="flex justify-between items-start mb-2">
             <h3 class="text-lg font-bold text-gray-900 truncate">{{ product.nombre }}</h3>
             <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-              ${{ product.precio }}
+             ${{ product.precio }}
             </span>
           </div>
-          
+
+          <p class="text-gray-600 text-sm line-clamp-2 mb-4">
+            cantidad: {{ product.cantidadInventory }}
+          </p>
+
           <p class="text-gray-600 text-sm line-clamp-2 mb-4">
             {{ product.descripcion || 'Sin descripción disponible para este producto.' }}
           </p>
 
-          <div class="flex gap-2 pt-4 border-t border-gray-100">
-            <button  
-              v-role="'administrator'"
-              @click="handleUpdate(product.idProducto)"
-              class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
-            >
-              Actualizar
+          <div class="flex flex-col gap-3 pt-4 border-t border-gray-100">
+
+            <button @click="addToCartP(product)" :disabled ="!(product.cantidadInventory > 0)"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-xl text-sm font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-md shadow-blue-100">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Agregar al carrito
             </button>
-            <button 
-              v-role="'administrator'"
-              @click="handleDelete(product.idProducto)"
-              class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
-            >
-              Eliminar
-            </button>
+
+            <div v-role="'administrator'" class="flex gap-2">
+              <button @click="handleUpdate(product.idProducto)"
+                class="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-600 py-2 px-3 rounded-lg text-xs font-bold transition-colors border border-amber-200">
+                Actualizar
+              </button>
+              <button @click="handleDelete(product.idProducto)"
+                class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 px-3 rounded-lg text-xs font-bold transition-colors border border-red-200">
+                Eliminar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -89,11 +100,11 @@
 import { Product } from '@/shared/models/Product';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { List, Delete } from '../Api';
+import ApiProductService from '@/shared/services/ApiProductService';
+import { addToCart, products } from '@/cartStatus';
 
 const router = useRouter();
 
-const products = ref<Product[]>(null);
 const loading = ref(true);
 const error = ref(null);
 const searchTerm = ref('');
@@ -107,15 +118,20 @@ const filteredProducts = computed(() => {
   );
 });
 
+
 const onNew = () => {
   router.push({ name: 'Product', params: {id: 0}});
 }
 
+const addToCartP = async (product:Product) => {
+  addToCart(product);
+  product.cantidadInventory -= 1;
+}
 const  getProducts = async () => {
   loading.value = true;
   try {
     const search = 'NA';
-    products.value = await List('Product', search);
+    products.value = await ApiProductService.List(search);
     //console.log(products.value)
   } catch (err) {
     error.value = "No se pudieron cargar los productos.";
@@ -138,12 +154,12 @@ const handleDelete = async (id) => {
   if (!confirm("¿Estás seguro de eliminar este producto?")) return;
 
   try {
-    await Delete('Product', id);
+    await ApiProductService.Delete(id);
     // Filtrar la lista localmente para no recargar toda la página
     products.value = products.value.filter(p => p.idProducto !== id);
     alert("Producto eliminado");
   } catch (err) {
-    alert("Error al eliminar");
+    alert(err.message);
   }
 };
 

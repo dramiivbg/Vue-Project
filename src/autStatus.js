@@ -1,15 +1,41 @@
 import { ref } from 'vue';
+import { jwtDecode } from 'jwt-decode';
 
 // Definimos el token de forma reactiva fuera del componente
-export const token = ref(localStorage.getItem("user_token"));
+export const userData = ref({
+    clave: "",
+    correo: "",
+    nombreCompleto: "",
+    rol: "",
+    confirmarClave: "",
+    idUsuario: 0,
+    token: ""
+  });
 
 export const updateAuth = () => {
-  token.value = localStorage.getItem("user_token");
+  const token = localStorage.getItem('user_token');
+  if(!token) return;
+  
+  const decoded = jwtDecode(token);
+  const userRole = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+  const nombreCompleto = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
+  const idUser = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+  const email = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
+
+  userData.value = {
+    ...userData.value,
+    correo: email,
+    nombreCompleto: nombreCompleto,
+    rol: userRole,
+    idUsuario: Number(idUser),
+    token:token
+  };
+
+  console.log(userData.value)
 };
 
 export const clearAuth = () => {
   localStorage.removeItem("user_token");
-  token.value = null;
 };
 
 

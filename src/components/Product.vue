@@ -63,7 +63,7 @@ import { onMounted, ref } from 'vue';
 import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import { Product } from '@/shared/models/Product';
-import { Create, Edit, GetById } from '../Api';
+import ApiProductService from '@/shared/services/ApiProductService';
 
 const router = useRouter();
 
@@ -91,11 +91,15 @@ const loading = ref(false);
 
 const getProduct = async (id:number) => {
     try {
-        product.value = await GetById('Product', id);
+        product.value = await ApiProductService.GetById(id);
     } catch (err) {
        error.value = "No se pudo obtener el producto"
     }
     
+}
+
+const decodePassword = async (encode:string) => {
+  
 }
 
 onMounted(() => {
@@ -121,10 +125,10 @@ const handleSubmit = async () => {
         };
 
         if (id == 0) {
-            await Create('Product', payload);
+            await ApiProductService.Create(payload);
             alert("¡Producto creado con éxito!");
         } else {
-            await Edit('Product', payload);
+            await ApiProductService.Edit(payload);
             alert("¡Producto actualizado con éxito!");
         }
         router.push('/products'); // Redirigir al listado

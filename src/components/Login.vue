@@ -86,11 +86,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { inject, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { User } from '@/shared/models/User';
-
-import { Login } from '../Api';
+import ApiUserService from '@/shared/services/ApiUserService';
+import { clearAuth, updateAuth } from '@/autStatus';
 
 const router = useRouter();
 // Definimos variables reactivas
@@ -103,12 +103,18 @@ const UserData = ref<User>(null);
 
 const loading = ref(false);
 let errorMessage = ref('');
+
+onMounted(() => {
+ clearAuth();
+});
+
 const handleLogin = async () => {
   loading.value = true;
   errorMessage = ref('');
   try {
-      UserData.value = await Login(formData);
+      UserData.value = await ApiUserService.Login(formData);
       localStorage.setItem('user_token', UserData.value.token);
+      updateAuth();
       router.replace('/products');
 
       // Opcional: Limpiar el formulario
@@ -128,33 +134,5 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container {
-  max-width: 300px;
-  margin: 50px auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-}
-.input-group {
-  margin-bottom: 15px;
-}
-input {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-}
-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #42b883;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-.error {
-  color: red;
-  font-size: 0.9em;
-  margin-top: 10px;
-}
+
 </style>
