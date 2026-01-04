@@ -36,6 +36,7 @@ export const updateAuth = () => {
 
 export const clearAuth = () => {
   localStorage.removeItem("user_token");
+  //window.location.replace('/login');
 };
 
 

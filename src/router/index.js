@@ -1,6 +1,7 @@
 
 import {createRouter, createWebHistory} from 'vue-router';
 import { jwtDecode } from "jwt-decode";
+import { clearAuth } from '@/autStatus';
 
 const routes = [
     {path: '/', redirect: '/products'},
@@ -32,7 +33,6 @@ router.beforeEach((to, from, next) => {
         const userRole = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
         console.log(decoded.exp < currentTime)
         if(decoded.exp < currentTime){
-            localStorage.removeItem('user_token');
             return next('/login');
         }
 

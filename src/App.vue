@@ -151,7 +151,7 @@
 
   <main class="pt-20 pb-10 min-h-screen bg-gray-50">
     <div class="max-w-7xl mx-auto px-4">
-      <router-view></router-view>
+      <router-view :key="$route.fullPath"></router-view>
     </div>
   </main>
 </template>

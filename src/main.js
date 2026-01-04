@@ -1,7 +1,8 @@
 
 import { createApp } from 'vue'
 import App from './App.vue'
-
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 import './assets/main.css';
 
 import router from './router'
@@ -44,5 +45,8 @@ app.directive('role', {
     checkRole(el, binding);
   }
 });
+
+// Hacerlo disponible globalmente
+app.config.globalProperties.$swal = Swal
 
 app.use(router).mount('#app')

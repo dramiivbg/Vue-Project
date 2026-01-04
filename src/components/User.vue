@@ -115,6 +115,7 @@ import { onMounted, reactive, ref } from "vue";
 import ApiUserService from '@/shared/services/ApiUserService';
 import { useRoute, useRouter } from "vue-router";
 import { User } from "@/shared/models/User";
+import Swal from "sweetalert2";
 
 const route = useRoute();
 
@@ -142,8 +143,12 @@ const getUser = async (id:number) => {
         formData.value = await ApiUserService.GetById(id);
         formData.value.clave = "";
     } catch (err) {
-       alert(err.message);
-       router.push('/products');
+      Swal.fire(
+        'Error',
+        err.message,
+        'error'
+      );
+       router.back();
     }
     
 }
@@ -163,11 +168,19 @@ const onRegister = async () => {
   try {
 
     if(id === 0){
-        await ApiUserService.Create(formData.value);
-        alert(`Usuario ${formData.value.nombreCompleto} Creado como ${formData.value.rol}`);
+      await ApiUserService.Create(formData.value);
+      Swal.fire(
+        'Usuario Creado',
+        `¡Usuario ${formData.value.nombreCompleto} registrado como ${formData.value.rol}!`,
+        'success'
+      );
     }else{
         await ApiUserService.Edit(formData.value);
-        alert(`Usuario ${formData.value.nombreCompleto} Actualizado como ${formData.value.rol}`);
+        Swal.fire(
+          'Usuario Actualizado',
+          `¡Usuario ${formData.value.nombreCompleto} actualizado como ${formData.value.rol}!`,
+          'success'
+        );
     }
 
     router.push('/users');

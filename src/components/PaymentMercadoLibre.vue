@@ -9,6 +9,7 @@ import ApiPaymentService from '@/shared/services/ApiPaymentService';
 import { onMounted } from 'vue';
 import { userData } from '@/autStatus';
 import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 
 const router = useRouter();
 
@@ -40,8 +41,8 @@ onMounted(async () => {
           // 3. ENVIAR DATOS AL BACKEND
           return new Promise(async (resolve, reject) => {
             createPayment(selectedPaymentMethod, formData)
-            .then((response) => resolve())
-            .catch((error) => reject());
+            .then((response) => resolve(response))
+            .catch((error) => reject(error));
           });
         },
         onError: (error) => console.error(error),
@@ -83,12 +84,20 @@ const createSales = async (idPayment) => {
             precioTotal: x.precio * x.quantity,
         }));
 
-        await ApiSaleService.Create(sales);
-        alert('la compra se realizo correctamente');
+      await ApiSaleService.Create(sales);
+      Swal.fire(
+        'Compra Exitosa',
+        'la compra se realizo correctamente',
+        'success'
+      );
         cart.value = [];
         router.push("/products");
     } catch (error) {
-        alert(error.message);
+      Swal.fire(
+        'Error',
+        err.message,
+        'error'
+      );
     }
 
 }

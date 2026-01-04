@@ -100,6 +100,7 @@ import ApiUserService from '@/shared/services/ApiUserService';
 import { User } from '@/shared/models/User';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 
 
 const router = useRouter();
@@ -131,16 +132,39 @@ const handleEdit = (id:number) => {
 };
 
 const handleDeactivate = async (id: number) => {
-  if (confirm("¿Estás seguro de que deseas Desactivar este usuario?")) {
-    try {
-        await ApiUserService.Deactivate(id);
-        var user = users.value.find(user => user.idUsuario == id);
-        user.active = false;
-        alert("Usuario Desactivado");
-    } catch (error) {
-        alert(error.message);
+  Swal.fire(
+    {
+      title: '¿Estás seguro de que deseas Desactivar este usuario?',
+      text: "Esta acción puede ser revertida más tarde.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, desactivar',
+      cancelButtonText: 'Cancelar'
     }
-  }
+  ).then(async (result) => {
+    if (result.isConfirmed) { 
+      try {
+          await ApiUserService.Deactivate(id);
+          var user = users.value.find(user => user.idUsuario == id);
+          user.active = false;
+          Swal.fire(
+            'Usuario Desactivado',
+            'El usuario ha sido desactivado correctamente.',
+            'success'
+          );
+
+      } catch (error) {
+        Swal.fire(
+          'Error',  
+          error.message,
+          'error'
+        );
+      }
+    }
+
+  });
 };
 
 const handleActive = async (id: number) => {
@@ -148,9 +172,17 @@ const handleActive = async (id: number) => {
         await ApiUserService.Activate(id);
         var user = users.value.find(user => user.idUsuario == id);
         user.active = true;
-        alert("Usuario Activado");
+          Swal.fire(
+            'Usuario Activado',
+            'El usuario ha sido activado correctamente.',
+            'success'
+          );
     } catch (error) {
-        alert(error.message);
+        Swal.fire(
+          'Error',
+          error.message,
+          'error'
+        );
   }
 };
 

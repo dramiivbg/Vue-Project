@@ -64,6 +64,7 @@ import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import { Product } from '@/shared/models/Product';
 import ApiProductService from '@/shared/services/ApiProductService';
+import Swal from 'sweetalert2';
 
 const router = useRouter();
 
@@ -93,14 +94,16 @@ const getProduct = async (id:number) => {
     try {
         product.value = await ApiProductService.GetById(id);
     } catch (err) {
-       error.value = "No se pudo obtener el producto"
+      Swal.fire(
+        'Error',
+        err.message,
+        'error'
+      );
+      router.back();
     }
     
 }
 
-const decodePassword = async (encode:string) => {
-  
-}
 
 onMounted(() => {
  if(id > 0){
@@ -114,7 +117,6 @@ onMounted(() => {
 
 const handleSubmit = async () => {
   loading.value = true;
-  const token = localStorage.getItem('user_token');
 
     try {
         // Es importante asegurar que precio y cantidades sean números al enviar
@@ -125,16 +127,27 @@ const handleSubmit = async () => {
         };
 
         if (id == 0) {
-            await ApiProductService.Create(payload);
-            alert("¡Producto creado con éxito!");
+          await ApiProductService.Create(payload);
+          Swal.fire(
+            'Creado',
+            "¡Producto creado con éxito!",
+            'success'
+          );
         } else {
-            await ApiProductService.Edit(payload);
-            alert("¡Producto actualizado con éxito!");
+          await ApiProductService.Edit(payload);
+          Swal.fire(
+            'Actualizado',
+            "¡Producto actualizado con éxito!",
+            'success'
+          );
         }
         router.push('/products'); // Redirigir al listado
     } catch (error) {
-        console.error("Error al crear:", error);
-        alert("Hubo un error al guardar el producto");
+         Swal.fire(
+        'Error',
+        error.message,
+        'error'
+      );
     } finally {
         loading.value = false;
     }

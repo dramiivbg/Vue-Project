@@ -102,6 +102,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ApiProductService from '@/shared/services/ApiProductService';
 import { addToCart, products } from '@/cartStatus';
+import Swal from 'sweetalert2';
 
 const router = useRouter();
 
@@ -151,15 +152,41 @@ const handleUpdate = (id) => {
 };
 
 const handleDelete = async (id) => {
-  if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: "¡No podrás revertir esto!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, eliminarlo',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      deleteProduct(id);
+    }
+  });
+};
 
+const deleteProduct = async (id) => {
   try {
     await ApiProductService.Delete(id);
     // Filtrar la lista localmente para no recargar toda la página
     products.value = products.value.filter(p => p.idProducto !== id);
-    alert("Producto eliminado");
+    Swal.fire(
+      'Eliminado',
+      'El producto ha sido eliminado.',
+      'success'
+    );
   } catch (err) {
-    alert(err.message);
+    if(err.message === "An error occurred while saving the entity changes. See the inner exception for details."){
+      err.message = "No se puede eliminar el producto porque tiene órdenes asociadas.";
+    }
+    Swal.fire(
+      'Error',
+      err.message,
+      'error'
+    );
   }
 };
 
