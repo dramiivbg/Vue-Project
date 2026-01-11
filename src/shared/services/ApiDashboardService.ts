@@ -51,6 +51,16 @@ class ApiDashboardService {
     
     }
 
+    GetMonthlySales = async (year:number):Promise<any> => {
+        try {
+            const response = await this.apiClient.get<any>(`/GetMonthlySales/${year}`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    
+    }
+
 }
 
 export default new ApiDashboardService();

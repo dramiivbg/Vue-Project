@@ -36,6 +36,15 @@ export const updateAuth = () => {
 
 export const clearAuth = () => {
   localStorage.removeItem("user_token");
+  Object.assign(userData, {
+    clave: "",
+    correo: "",
+    nombreCompleto: "",
+    rol: "",
+    confirmarClave: "",
+    idUsuario: 0,
+    token: ""
+  });
   //window.location.replace('/login');
 };
 
